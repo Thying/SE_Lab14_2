@@ -1,20 +1,19 @@
 #include <iostream>
 #include "Error.h"
+#include "Parm.h"
 
 int main(int argc, char* argv[]) {
     setlocale(LC_ALL, "rus");
 
-
-    std::cout << "- - - тест Error::geterrorin" << std::endl << std::endl;
+    std::cout << "- - - тест Parm::getparm" << std::endl << std::endl;
 
     try
     {
-        throw ERROR_THROW_IN(111, 7, 7);
+        Parm::PARM parm = Parm::getparm(argc, argv);
+        std::wcout << "-in:" << parm.in << ", -out:" << parm.out << ", -log:" << parm.log << std::endl << std::endl;
     }
     catch (Error::ERROR e)
     {
-        std::cout << "Ошибка" << e.id << ": " << e.message
-            << ", строка " << e.inext.line
-            << ", позиция " << e.inext.col << std::endl << std::endl;
+        std::cout << "Ошибка" << e.id << ": " << e.message << std::endl << std::endl;
     }
 }
