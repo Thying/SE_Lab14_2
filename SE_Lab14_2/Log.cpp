@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "Error.h"   //обработка ошибок
 #include "Parm.h"    //обработка параметров
 #include "Log.h"   //работа с протоколом
@@ -7,59 +8,51 @@
 #include <iostream>
 #include <cwchar>
 #include <stdexcept>
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <stdarg.h>
+#include <cwchar>
+#include <codecvt>
+#include <locale>
 
 namespace Log {
 
     // Функция для получения объекта LOG
-    LOG getlog(wchar_t logfile[]) {
-        LOG log = { { L'\0' }, nullptr };
-        wcscpy_s(log.logfile, PARM_MAX_SIZE, logfile);
+    LOG getlog(const char* logfile) {
+        LOG log = { { '\0' }, nullptr };
+        strcpy_s(log.logfile, PARM_MAX_SIZE, logfile);
 
         // Попытка открыть файл для записи
-        log.stream = new std::ofstream(log.logfile, std::ios::out | std::ios::binary);
+        log.stream = new std::ofstream(log.logfile, std::ios::out);
 
         // Проверка успешного открытия файла
         if (!log.stream->is_open()) {
             // Генерирование исключения при ошибке открытия файла
-            throw ERROR_THROW(112);
+            throw std::runtime_error("Ошибка открытия файла");
         }
 
         return log;
     }
 
+    // Вывести в протокол конкатенацию строк
     void WriteLine(LOG log, char* c, ...) {
         va_list args;
         va_start(args, c);
 
-        std::string output = c;
-        while (*c != '\0') {
-            output += va_arg(args, char*);
-            c++;
+        std::string result = c;
+        const char* next;
+        while ((next = va_arg(args, const char*)) != nullptr) {
+            // Проверка типа аргумента (в данном случае просто проверяем, что это строка)
+            if (next == nullptr || strlen(next) == 0) {
+                break;  // Прерываем цикл, если аргумент не является строкой
+            }
+            result += next;
         }
-
-        *log.stream << output << std::endl;
-
         va_end(args);
-    }
 
-    void WriteLine(LOG log, wchar_t* wc, ...) {
-        va_list args;
-        va_start(args, wc);
-
-        std::wstring output = wc;
-        while (*wc != L'\0') {
-            output += va_arg(args, wchar_t*);
-            wc++;
-        }
-
-        // Преобразование wstring в string
-        std::string output_str;
-        output_str.resize(output.size());
-        std::copy(output.begin(), output.end(), output_str.begin());
-
-        *log.stream << output_str << std::endl;
-
-        va_end(args);
+        *log.stream << result << std::endl;
     }
 
     void WriteLog(LOG log) {
@@ -82,8 +75,12 @@ namespace Log {
         *log.stream << "-------------------------" << std::endl;
         *log.stream << "Входной поток:" << std::endl;
         *log.stream << "-------------------------" << std::endl;
-        *log.stream << "Размер:" << in.size << std::endl;
-        *log.stream << "Тип данных:" << in.code << std::endl;
+        *log.stream << "Количество сиволов:" << in.size << std::endl;
+        *log.stream << "Количество игнорав:" << in.ignor << std::endl;
+        *log.stream << "Количество строк  :" << in.lines << std::endl;
+        *log.stream << "-------------------------" << std::endl;
+        *log.stream << "Содержимое файла:" << std::endl;
+        *log.stream << in.text << std::endl;
         *log.stream << "-------------------------" << std::endl;
     }
 

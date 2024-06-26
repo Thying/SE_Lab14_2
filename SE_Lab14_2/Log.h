@@ -8,21 +8,18 @@ namespace Log {
 
     // Протокол логгирования
     struct LOG {
-        wchar_t logfile[PARM_MAX_SIZE]; // Имя файла протокола
+        char logfile[PARM_MAX_SIZE]; // Имя файла протокола
         std::ofstream* stream;          // Выходной поток протокола
     };
 
     // Инициализация структуры LOG
-    static const LOG INITLOG = { L"", nullptr };
+    static const LOG INITLOG = {"", nullptr };
 
     // Формирование структуры LOG
-    LOG getlog(wchar_t logfile[]);
+    LOG getlog(const char* logfile);
 
     // Вывести в протокол конкатенацию строк
     void WriteLine(LOG log, char* c, ...);
-
-    // Вывести в протокол конкатенацию строк
-    void WriteLine(LOG log, wchar_t* c, ...);
 
     // Вывести в протокол заголовок
     void WriteLog(LOG log);
@@ -31,7 +28,7 @@ namespace Log {
     void WriteParm(LOG log, Parm::PARM parm);
 
     // Вывести в протокол информацию о входном потоке
-    void WriteIn(LOG log, In::IN in);
+    void WriteIn(LOG& log, const In::IN& in);
 
     // Вывести в протокол информацию об ошибке
     void WriteError(LOG log, Error::ERROR error);
