@@ -21,7 +21,7 @@ namespace Log {
         // Проверка успешного открытия файла
         if (!log.stream->is_open()) {
             // Генерирование исключения при ошибке открытия файла
-            throw std::runtime_error("Ошибка открытия файла для записи лога.");
+            throw ERROR_THROW(112);
         }
 
         return log;
